@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void throw_error(char *message)
 {
@@ -28,7 +29,7 @@ int main(void)
     fseek(ratingsFile, 0L, SEEK_SET);
 
     const long fileSize = get_file_size(ratingsFile);
-    unsigned char *fileContents = malloc(fileSize + 1); // add 1 to fileSize to reserve space for the null terminator
+    char *fileContents = malloc(fileSize + 1); // add 1 to fileSize to reserve space for the null terminator
     if (!fileContents)
     {
         throw_error("issue allocating memory");
@@ -39,7 +40,17 @@ int main(void)
     fread(fileContents, 1, fileSize, ratingsFile); // read file in fileSize chunks of 1 byte
     fileContents[fileSize] = '\0';                 // null-terminate
 
-    printf("%s", fileContents); // NOTE: full file will not print out due to terminal 1024 character limit
+    char *token = strtok(fileContents, "\n");
+    int numLines = 1;
+    do // use do-while instead of while to eliminate redundant first check
+    {
+        printf("%s\n", token);
+        token = strtok(NULL, "\n"); // we pass NULL to strtok for the next token as it works based on a static pointer
+        numLines++;
+    } while (token != NULL);
+
+    // printf("%s", fileContents); // NOTE: full file will not print out due to terminal 1024 character limit
+    printf("NUMLINES: %i", numLines);
     fclose(ratingsFile);
     free(fileContents);
 

@@ -3,12 +3,12 @@
 
 typedef struct
 {
-    char **contents;
+    void **contents;
     size_t length;
 } List;
 
 List list_initialize(void);
 
-void list_append(List *list, char *value);
+void list_append(List *list, void *value);
 
 void list_print(List list);

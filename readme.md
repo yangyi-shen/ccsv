@@ -6,3 +6,7 @@ This is an implementation of the recommendation algorithmns described in Chapter
 
 - [ ] Euclidean Distance Score
 - [ ] Pearson Correlation Score
+
+## acknowledgements
+
+- **Dataset:** MovieLens dataset from the University of Minnesota's GroupLens project

@@ -2,6 +2,29 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct
+{
+    char **pointer; // pointer to a pointer of a char (array of array of chars) (array of strings)
+    size_t length;  // number of items in the List
+} List;
+
+List list_initialize(void)
+{
+    List newList = {
+        .pointer = NULL, // list starts out empty
+        .length = 0,     // number of items is 0
+    };
+
+    return newList;
+}
+
+void list_append(List *list, char *value)
+{
+    list->pointer = realloc(list->pointer, sizeof(char *) * (list->length + 1)); // reallocate enough space for current contents + 1 char
+    list->pointer[list->length] = strdup(value);                                 // assign new value to newly created index
+    list->length++;                                                              // update length to match current contents
+}
+
 void throw_error(char *message)
 {
     printf("\n\nERROR: %s\n", message);
@@ -16,41 +39,45 @@ long get_file_size(FILE *file)
     return fileSize;
 }
 
+char *get_file_contents(FILE *file)
+{
+    const long fileSize = get_file_size(file);
+    char *fileContents = malloc(fileSize + 1); // add 1 to fileSize to reserve space for the null terminator
+    if (!fileContents)
+    {
+        throw_error("issue allocating memory");
+        fclose(file);
+        exit(EXIT_FAILURE);
+    }
+
+    fread(fileContents, 1, fileSize, file); // read file in fileSize chunks of 1 byte
+    fileContents[fileSize] = '\0';          // null-terminate
+
+    return fileContents;
+}
+
 int main(void)
 {
     FILE *ratingsFile = fopen("./data/ratings.csv", "r");
-
     if (!ratingsFile)
     {
         throw_error("issue opening file");
         return EXIT_FAILURE;
     }
 
-    fseek(ratingsFile, 0L, SEEK_SET);
+    char *fileContents = get_file_contents(ratingsFile);
 
-    const long fileSize = get_file_size(ratingsFile);
-    char *fileContents = malloc(fileSize + 1); // add 1 to fileSize to reserve space for the null terminator
-    if (!fileContents)
+    char *ratingsFieldsRaw = strtok(fileContents, "\n");
+
+    List ratingsFields = list_initialize();
+    char *ratingsField = strtok(ratingsFieldsRaw, ",");
+    do
     {
-        throw_error("issue allocating memory");
-        fclose(ratingsFile);
-        return EXIT_FAILURE;
-    }
+        list_append(&ratingsFields, ratingsField);
+        printf("%s\n", ratingsField);
+        ratingsField = strtok(NULL, ",");
+    } while (ratingsField);
 
-    fread(fileContents, 1, fileSize, ratingsFile); // read file in fileSize chunks of 1 byte
-    fileContents[fileSize] = '\0';                 // null-terminate
-
-    char *token = strtok(fileContents, "\n");
-    int numLines = 1;
-    do // use do-while instead of while to eliminate redundant first check
-    {
-        printf("%s\n", token);
-        token = strtok(NULL, "\n"); // we pass NULL to strtok for the next token as it works based on a static pointer
-        numLines++;
-    } while (token != NULL);
-
-    // printf("%s", fileContents); // NOTE: full file will not print out due to terminal 1024 character limit
-    printf("NUMLINES: %i", numLines);
     fclose(ratingsFile);
     free(fileContents);
 

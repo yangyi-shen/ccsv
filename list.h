@@ -3,7 +3,7 @@
 
 typedef struct
 {
-    char **pointer;
+    char **contents;
     size_t length;
 } List;
 

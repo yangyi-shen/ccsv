@@ -55,11 +55,18 @@ DataFrame parse_file_text(char *text)
     {
         list_append(&parsedText.headers, currentHeader);
         parsedText.numCols++;
-        
+
         currentHeader = strtok(NULL, ",");
     } while (currentHeader);
 
     return parsedText;
+}
+
+void dataframe_print(DataFrame dataframe) {
+    printf("HEADERS:\n");
+    list_print(dataframe.headers);
+
+    printf("\nNUMCOLS: %i", dataframe.numCols);
 }
 
 int main(void)
@@ -74,6 +81,8 @@ int main(void)
     char *fileText = get_file_text(ratingsFile);
 
     DataFrame parsedFileText = parse_file_text(fileText);
+    
+    dataframe_print(parsedFileText);
 
     fclose(ratingsFile);
     free(fileText);

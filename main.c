@@ -3,11 +3,15 @@
 #include <string.h>
 
 #include "list.h"
+#include "utils.h"
 
-void throw_error(char *message)
+// implement parsing the headers and related data first
+typedef struct
 {
-    printf("\n\nERROR: %s\n", message);
-}
+    List headers;
+    int numCols;
+    // add column and main data handling later
+} DataFrame;
 
 long get_file_size(FILE *file)
 {
@@ -18,21 +22,44 @@ long get_file_size(FILE *file)
     return fileSize;
 }
 
-char *get_file_contents(FILE *file)
+char *get_file_text(FILE *file)
 {
     const long fileSize = get_file_size(file);
-    char *fileContents = malloc(fileSize + 1); // add 1 to fileSize to reserve space for the null terminator
-    if (!fileContents)
+    char *fileText = malloc(fileSize + 1); // add 1 to fileSize to reserve space for the null terminator
+    if (!fileText)
     {
         throw_error("issue allocating memory");
         fclose(file);
         exit(EXIT_FAILURE);
     }
 
-    fread(fileContents, 1, fileSize, file); // read file in fileSize chunks of 1 byte
-    fileContents[fileSize] = '\0';          // null-terminate
+    fread(fileText, 1, fileSize, file); // read file in fileSize chunks of 1 byte
+    fileText[fileSize] = '\0';          // null-terminate
 
-    return fileContents;
+    return fileText;
+}
+
+DataFrame parse_file_text(char *text)
+{
+    char *headersText = strtok(text, "\n");
+
+    List headers = list_initialize();
+    char *currentHeader = strtok(headersText, ",");
+    DataFrame parsedText = {
+        // initialize DataFrame that will store the file data
+        .headers = headers,
+        .numCols = 0,
+    };
+
+    do
+    {
+        list_append(&parsedText.headers, currentHeader);
+        parsedText.numCols++;
+        
+        currentHeader = strtok(NULL, ",");
+    } while (currentHeader);
+
+    return parsedText;
 }
 
 int main(void)
@@ -44,21 +71,12 @@ int main(void)
         return EXIT_FAILURE;
     }
 
-    char *fileContents = get_file_contents(ratingsFile);
+    char *fileText = get_file_text(ratingsFile);
 
-    char *ratingsFieldsRaw = strtok(fileContents, "\n");
-
-    List ratingsFields = list_initialize();
-    char *ratingsField = strtok(ratingsFieldsRaw, ",");
-    do
-    {
-        list_append(&ratingsFields, ratingsField);
-        printf("%s\n", ratingsField);
-        ratingsField = strtok(NULL, ",");
-    } while (ratingsField);
+    DataFrame parsedFileText = parse_file_text(fileText);
 
     fclose(ratingsFile);
-    free(fileContents);
+    free(fileText);
 
     return EXIT_SUCCESS;
 }

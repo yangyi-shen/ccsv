@@ -36,13 +36,6 @@ DataFrame parse_file_text(char *text)
     return parsedText;
 }
 
-void dataframe_print(DataFrame dataframe) {
-    printf("HEADERS:\n");
-    list_print(dataframe.headers);
-
-    printf("\nNUMCOLS: %i", dataframe.numCols);
-}
-
 int main(void)
 {
     FILE *ratingsFile = fopen("./data/ratings.csv", "r");
@@ -55,8 +48,6 @@ int main(void)
     char *fileText = get_file_text(ratingsFile);
 
     DataFrame parsedFileText = parse_file_text(fileText);
-
-    dataframe_print(parsedFileText);
 
     fclose(ratingsFile);
     free(fileText);

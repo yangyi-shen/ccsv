@@ -31,11 +31,3 @@ void list_append(List *list, void *value)
     list->contents[list->length] = value; // assign new value to newly created index
     list->length++;                       // update length to match current contents
 }
-
-void list_print(List list)
-{
-    for (int i = list.length; i > 0; i--)
-    {
-        printf("ITEM %i: %s\n", i, list.contents[i - 1]);
-    }
-}

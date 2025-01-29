@@ -4,7 +4,7 @@ This was meant to be a C library for parsing .csv files, written for the purpose
 
 For now, I was able to print out the headers of the file ratings.csv. You will find that it works with other .csv files as well.
 
-## todo list
+## todo list:
 
 - [x] Implement dynamic arrays
 - [ ] Extract .csv data
